@@ -14,17 +14,16 @@
 """Data preprocessing using NVTabular."""
 
 import os
-import tensorflow.io as tf_io
 import logging
 
-
+import tensorflow.io as tf_io
 import cudf
 import nvtabular as nvt
 
 from google.cloud import aiplatform as vertex_ai
 
 from sklearn.model_selection import train_test_split
-from src.common import features
+from src.common import features, utils
 
 
 LOCAL_TRANSFORM_DIR = 'transform_workflow'
@@ -66,26 +65,6 @@ def create_workflow(movies_df):
     output = cat_features + ratings
     workflow = nvt.Workflow(output)
     return workflow
-
-
-def upload_transform_workflow(gcs_location):
-    
-    
-    stack = [LOCAL_TRANSFORM_DIR]
-    while stack:
-        current = stack.pop()
-        if tf_io.gfile.isdir(current):
-            for next_item in tf_io.gfile.listdir(current):
-                stack.append(os.path.join(current, next_item))
-        else:
-            tf_io.gfile.copy(
-                current, 
-                os.path.join(gcs_location, current)
-            )
-    try:
-        tf_io.gfile.rmtree(LOCAL_TRANSFORM_DIR)
-        tf_io.gfile.rmtree("categories")
-    except: pass
 
 
 
@@ -155,8 +134,14 @@ def run_etl(
     logging.info("Transformation workflow is saved.")
     
     logging.info("Uploading trandorm workflow to Cloud Storage...")
-    upload_transform_workflow(etl_output_dir)
+    utils.upload_directory(LOCAL_TRANSFORM_DIR, etl_output_dir)
+    try:
+        tf_io.gfile.rmtree(LOCAL_TRANSFORM_DIR)
+        tf_io.gfile.rmtree("categories")
+    except: pass
     logging.info("Transformation uploaded to Cloud Storage.")
+    
+
 
     
 

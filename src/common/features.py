@@ -35,6 +35,10 @@ UNUSED_FEATURES = [
     "title"
 ]
 
+NUMERICAL_FEATURE_NAMES = [
+    
+]
+
 MULTIVALUE_FEATURE_NAMES = [
     "genres"
 ]
@@ -42,6 +46,10 @@ MULTIVALUE_FEATURE_NAMES = [
 CATEGORICAL_FEATURE_NAMES = ["userId", "movieId"]
 
 TARGET_FEATURE_NAME = ["rating"]
+
+
+def get_categorical_feature_names():
+    return MULTIVALUE_FEATURE_NAMES + CATEGORICAL_FEATURE_NAMES
 
 
 def get_dtype_dict():
