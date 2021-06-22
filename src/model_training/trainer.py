@@ -14,13 +14,16 @@
 """Train and evaluate the model."""
 
 import os
+
+os.environ["TF_MEMORY_ALLOCATION"] = "0.7"  # fraction of free memory
+os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
+
 import logging
 import tensorflow as tf
 from tensorflow import keras
 import nvtabular as nvt
 from nvtabular.loader.tensorflow import KerasSequenceLoader, KerasSequenceValidater
-
-os.environ["TF_MEMORY_ALLOCATION"] = "0.7"  # fraction of free memory
+#from nvtabular.inference.triton import export_tensorflow_ensemble
 
 from src.common import features, utils
 from src.model_training import model
@@ -51,7 +54,7 @@ def update_hyperparams(hyperparams: dict) -> dict:
 
 def train(
     train_data_file_pattern,
-    nvt_workflow_dir,
+    nvt_workflow,
     hyperparams,
     log_dir):
     
@@ -72,10 +75,6 @@ def train(
         buffer_size=0.06,  # how many batches to load at once
         parts_per_chunk=1,
     )
-    
-    logging.info(f"Loading nvt workflow...")
-    nvt_workflow = nvt.Workflow.load(nvt_workflow_dir)
-    logging.info(f"nvt workflow loaded.")
     
     embedding_shapes, embedding_shapes_multihot = nvt.ops.get_embedding_sizes(nvt_workflow)
     embedding_shapes.update(embedding_shapes_multihot)
@@ -126,6 +125,20 @@ def evaluate(
     evaluation_metrics =  recommendation_model.evaluate(eval_dataset)
     logging.info(f"Evaluation loss: {evaluation_metrics[0]} - Evaluation MAE {evaluation_metrics[1]}")
     return evaluation_metrics
+
+
+
+# def export(recommendation_model, nvt_workflow, model_name, export_dir):
+    
+#     for feature_name in features.CATEGORICAL_FEATURE_NAMES:
+#         nvt_workflow.output_dtypes[feature_name] = "int32"
+
+#     export_tensorflow_ensemble(
+#         recommendation_model, 
+#         nvt_workflow, 
+#         model_name, 
+#         export_dir, features.TARGET_FEATURE_NAME
+#     )
     
 
 

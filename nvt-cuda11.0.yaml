@@ -57,7 +57,6 @@ dependencies:
   - tqdm
   - pip:
       - nvidia-pyindex
-      - google-cloud
-      - google-cloud-aiplatform==1.0.1
+      - google-cloud-aiplatform==1.1.0
       - graphviz
       - sphinx-markdown-tables
