@@ -22,7 +22,7 @@ import tensorflow as tf
 from tensorflow.python.client import device_lib
 import argparse
 
-from google.cloud import aiplatform as vertex_ai
+# from google.cloud import aiplatform as vertex_ai
 from google.protobuf.internal import api_implementation
 
 from src.model_training import trainer
@@ -86,24 +86,24 @@ def main():
     experiment_params = trainer.update_hyperparams(experiment_params)
     logging.info(f"Parameter values: {experiment_params}")
 
-    if args.experiment_name:
-        vertex_ai.init(
-            project=args.project,
-            location=args.region,
-            staging_bucket=args.staging_bucket,
-            experiment=args.experiment_name,
-        )
-        logging.info(f"Using Vertex AI experiment: {args.experiment_name}")
+#     if args.experiment_name:
+#         vertex_ai.init(
+#             project=args.project,
+#             location=args.region,
+#             staging_bucket=args.staging_bucket,
+#             experiment=args.experiment_name,
+#         )
+#         logging.info(f"Using Vertex AI experiment: {args.experiment_name}")
 
-        run_id = args.run_name
-        if not run_id:
-            run_id = f"run-gcp-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+#         run_id = args.run_name
+#         if not run_id:
+#             run_id = f"run-gcp-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
-        vertex_ai.start_run(run_id)
-        logging.info(f"Run {run_id} started.")
+#         vertex_ai.start_run(run_id)
+#         logging.info(f"Run {run_id} started.")
 
-    if args.experiment_name:
-        vertex_ai.log_params(experiment_params)
+#     if args.experiment_name:
+#         vertex_ai.log_params(experiment_params)
         
     
     logging.info("Downloading data and transform workflow...")
@@ -142,12 +142,12 @@ def main():
     if args.experiment_name:
         vertex_ai.log_metrics({"val_loss": val_loss, "val_accuracy": val_accuracy})
         
-#     trainer.export(
-#         recommendation_model, 
-#         nvt_workflow, 
-#         model_name, 
-#         args.model_dir
-#     )
+    trainer.export(
+        recommendation_model, 
+        nvt_workflow, 
+        model_name, 
+        args.model_dir
+    )
 
 
 if __name__ == "__main__":

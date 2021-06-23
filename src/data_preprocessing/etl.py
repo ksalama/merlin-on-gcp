@@ -20,7 +20,7 @@ import tensorflow.io as tf_io
 import cudf
 import nvtabular as nvt
 
-from google.cloud import aiplatform as vertex_ai
+#from google.cloud import aiplatform as vertex_ai
 
 from sklearn.model_selection import train_test_split
 from src.common import features, utils
@@ -71,18 +71,20 @@ def create_workflow(movies_df):
 def run_etl(
     project, 
     region, 
-    movies_dataset_display_name, 
-    ratings_dataset_display_name, 
+#     movies_dataset_display_name, 
+#     ratings_dataset_display_name,
+    movies_csv_data_location,
+    ratings_csv_data_location,
     etl_output_dir,
     test_size=0.2):
     
-    vertex_ai.init(
-        project=project,
-        location=region)
+#     vertex_ai.init(
+#         project=project,
+#         location=region)
     
-    logging.info("Getting GCS data locations...")
-    movies_csv_data_location = get_dataset_gcs_location(movies_dataset_display_name)
-    ratings_csv_data_location = get_dataset_gcs_location(ratings_dataset_display_name)
+#     logging.info("Getting GCS data locations...")
+#     movies_csv_data_location = get_dataset_gcs_location(movies_dataset_display_name)
+#     ratings_csv_data_location = get_dataset_gcs_location(ratings_dataset_display_name)
     
     logging.info("Loading dataframes...")
     movies_dataframe = prep_dataframe(cudf.read_csv(movies_csv_data_location))

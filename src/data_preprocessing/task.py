@@ -27,8 +27,23 @@ from src.data_preprocessing import etl
 def get_args():
     parser = argparse.ArgumentParser()
 
+#     parser.add_argument(
+#         "--movies-dataset-display-name",
+#         type=str,
+#     )
+
+#     parser.add_argument(
+#         "--ratings-dataset-display-name",
+#         type=str,
+#     )
+
     parser.add_argument(
-        "--movies-dataset-display-name",
+        "--movies-csv-data-location",
+        type=str,
+    )
+    
+    parser.add_argument(
+        "--ratings-csv-data-location",
         type=str,
     )
 
@@ -66,8 +81,8 @@ def main():
     etl.run_etl(
         args.project, 
         args.region, 
-        args.movies_dataset_display_name, 
-        args.ratings_dataset_display_name, 
+        args.movies_csv_data_location, 
+        args.ratings_csv_data_location, 
         args.etl_output_dir
     )
 

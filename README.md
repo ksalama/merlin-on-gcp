@@ -14,9 +14,10 @@ An example of running NVidia Merlin on Google Cloud
 5. Create a `conda` environment with the required packages:
     ```
     conda env create -f=nvt-cuda11.0.yaml
-    conda activate env-cuda11.0
+    conda activate nvt-cuda11.0
     python -m ipykernel install --user --name=nvt-cuda11.0
     pip install -e .
+    pip install tritonclient
     ```
     
 6. Build the Docker container image used in Vertex AI
