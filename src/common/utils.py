@@ -26,9 +26,13 @@ def upload_directory(source_dir, destination_dir):
             for next_item in tf_io.gfile.listdir(current):
                 stack.append(os.path.join(current, next_item))
         else:
+            x = current.replace(source_dir + "/", '')
+            dist = os.path.join(destination_dir, x)
             tf_io.gfile.copy(
                 current, 
-                os.path.join(destination_dir, current)
+                dist,
+                overwrite=True
+                
             )
             
             
@@ -55,12 +59,14 @@ def download_directory(source_dir, destination_dir):
         else:
             tf_io.gfile.copy(
                 source, 
-                destination
+                destination,
+                overwrite=True
             )
             
             
             
 def copy_files(file_pattern, destination_dir):
+        
     for file_path in tf_io.gfile.glob(file_pattern):
         file_name = os.path.basename(file_path)
-        tf_io.gfile.copy(file_path, os.path.join(destination_dir, file_name))
+        tf_io.gfile.copy(file_path, os.path.join(destination_dir, file_name), overwrite=True)

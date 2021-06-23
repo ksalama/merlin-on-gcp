@@ -8,14 +8,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/*
 
 
-COPY nvt-cuda11.0.yaml nvt-cuda11.0.yaml
+RUN conda install -c nvidia -c rapidsai -c numba -c conda-forge nvtabular python=3.7 cudatoolkit=11.0 -y
 
-RUN conda env create -f=nvt-cuda11.0.yaml
-
-ENV PATH /opt/conda/envs/nvt-cuda11.0/bin:$PATH
-
+RUN pip install tensorflow==2.4.1
+RUN pip install nvidia-pyindex
 RUN pip install tritonclient
 
 COPY src/ src/
 
 ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+ENV TF_MEMORY_ALLOCATION=0.7

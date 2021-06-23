@@ -136,7 +136,10 @@ def run_etl(
     logging.info("Transformation workflow is saved.")
     
     logging.info("Uploading trandorm workflow to Cloud Storage...")
-    utils.upload_directory(LOCAL_TRANSFORM_DIR, etl_output_dir)
+    utils.upload_directory(
+        LOCAL_TRANSFORM_DIR, 
+        os.path.join(etl_output_dir, 'transform_workflow')
+    )
     try:
         tf_io.gfile.rmtree(LOCAL_TRANSFORM_DIR)
         tf_io.gfile.rmtree("categories")

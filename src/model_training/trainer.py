@@ -14,16 +14,12 @@
 """Train and evaluate the model."""
 
 import os
-
-os.environ["TF_MEMORY_ALLOCATION"] = "0.7"  # fraction of free memory
-os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
-
 import logging
 import tensorflow as tf
 from tensorflow import keras
 import nvtabular as nvt
 from nvtabular.loader.tensorflow import KerasSequenceLoader, KerasSequenceValidater
-#from nvtabular.inference.triton import export_tensorflow_ensemble
+from nvtabular.inference.triton import export_tensorflow_ensemble
 
 from src.common import features, utils
 from src.model_training import model
@@ -56,7 +52,7 @@ def train(
     train_data_file_pattern,
     nvt_workflow,
     hyperparams,
-    log_dir):
+    log_dir=None):
     
     hyperparams = update_hyperparams(hyperparams)
     logging.info("Hyperparameter:")
@@ -128,17 +124,17 @@ def evaluate(
 
 
 
-# def export(recommendation_model, nvt_workflow, model_name, export_dir):
+def export(recommendation_model, nvt_workflow, model_name, export_dir):
     
-#     for feature_name in features.CATEGORICAL_FEATURE_NAMES:
-#         nvt_workflow.output_dtypes[feature_name] = "int32"
+    for feature_name in features.CATEGORICAL_FEATURE_NAMES:
+        nvt_workflow.output_dtypes[feature_name] = "int32"
 
-#     export_tensorflow_ensemble(
-#         recommendation_model, 
-#         nvt_workflow, 
-#         model_name, 
-#         export_dir, features.TARGET_FEATURE_NAME
-#     )
+    export_tensorflow_ensemble(
+        recommendation_model, 
+        nvt_workflow, 
+        model_name, 
+        export_dir, features.TARGET_FEATURE_NAME
+    )
     
 
 
