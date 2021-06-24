@@ -20,28 +20,10 @@ import tensorflow.io as tf_io
 import cudf
 import nvtabular as nvt
 
-#from google.cloud import aiplatform as vertex_ai
-
 from sklearn.model_selection import train_test_split
 from src.common import features, utils
 
-
-LOCAL_TRANSFORM_DIR = 'transform_workflow'
 RANDOM_STATE = 42
-
-
-def get_dataset_gcs_location(dataset_display_name):
-    datasets = vertex_ai.TabularDataset.list()
-    dataset = None
-    for entry in datasets:
-        if entry.display_name == dataset_display_name:
-            dataset = entry
-            break
-
-    if not dataset:
-        raise ValueError(f"Dataset with display name {dataset_display_name} does not exist!")
-    
-    return dataset.gca_resource.metadata['inputConfig']['gcsSource']['uri'][0]
 
 
 
@@ -69,23 +51,11 @@ def create_workflow(movies_df):
 
 
 def run_etl(
-    project, 
-    region, 
-#     movies_dataset_display_name, 
-#     ratings_dataset_display_name,
     movies_csv_data_location,
     ratings_csv_data_location,
-    etl_output_dir,
     test_size=0.2):
     
-#     vertex_ai.init(
-#         project=project,
-#         location=region)
-    
-#     logging.info("Getting GCS data locations...")
-#     movies_csv_data_location = get_dataset_gcs_location(movies_dataset_display_name)
-#     ratings_csv_data_location = get_dataset_gcs_location(ratings_dataset_display_name)
-    
+
     logging.info("Loading dataframes...")
     movies_dataframe = prep_dataframe(cudf.read_csv(movies_csv_data_location))
     ratings_dataframe = prep_dataframe(cudf.read_csv(ratings_csv_data_location))
@@ -111,40 +81,50 @@ def run_etl(
     workflow.fit(train_dataset)
     logging.info("Transformation workflow is fitted.")
     
+#     logging.info("Transforming train dataset...")
+#     workflow.transform(train_dataset).to_parquet(
+#         output_path=os.path.join(etl_output_dir, "transformed_data/train"),
+#         shuffle=nvt.io.Shuffle.PER_PARTITION,
+#         cats=features.CATEGORICAL_FEATURE_NAMES,
+#         labels=features.TARGET_FEATURE_NAME,
+#         dtypes=features.get_dtype_dict(),
+#     )
+#     logging.info("Train data is transformed.")
+    
+#     logging.info(f"Transforming test dataset...")
+#     workflow.transform(test_dataset).to_parquet(
+#         output_path=os.path.join(etl_output_dir, "transformed_data/test"),
+#         shuffle=False,
+#         cats=features.CATEGORICAL_FEATURE_NAMES,
+#         labels=features.TARGET_FEATURE_NAME,
+#         dtypes=features.get_dtype_dict(),
+#     )
+#     logging.info("Test dataset is transformed.")
+
     logging.info("Transforming train dataset...")
-    workflow.transform(train_dataset).to_parquet(
-        output_path=os.path.join(etl_output_dir, "transformed_data/train"),
-        shuffle=nvt.io.Shuffle.PER_PARTITION,
-        cats=features.CATEGORICAL_FEATURE_NAMES,
-        labels=features.TARGET_FEATURE_NAME,
-        dtypes=features.get_dtype_dict(),
-    )
+    transformed_train_dataset = workflow.transform(train_dataset)
     logging.info("Train data is transformed.")
     
     logging.info(f"Transforming test dataset...")
-    workflow.transform(test_dataset).to_parquet(
-        output_path=os.path.join(etl_output_dir, "transformed_data/test"),
-        shuffle=False,
-        cats=features.CATEGORICAL_FEATURE_NAMES,
-        labels=features.TARGET_FEATURE_NAME,
-        dtypes=features.get_dtype_dict(),
-    )
+    transformed_test_dataset = workflow.transform(test_dataset)
     logging.info("Test dataset is transformed.")
     
-    logging.info("Saving transformation workflow...")
-    workflow.save(LOCAL_TRANSFORM_DIR)
-    logging.info("Transformation workflow is saved.")
+    return transformed_train_dataset, transformed_test_dataset, workflow
     
-    logging.info("Uploading trandorm workflow to Cloud Storage...")
-    utils.upload_directory(
-        LOCAL_TRANSFORM_DIR, 
-        os.path.join(etl_output_dir, 'transform_workflow')
-    )
-    try:
-        tf_io.gfile.rmtree(LOCAL_TRANSFORM_DIR)
-        tf_io.gfile.rmtree("categories")
-    except: pass
-    logging.info("Transformation uploaded to Cloud Storage.")
+#     logging.info("Saving transformation workflow...")
+#     workflow.save(LOCAL_TRANSFORM_DIR)
+#     logging.info("Transformation workflow is saved.")
+    
+#     logging.info("Uploading trandorm workflow to Cloud Storage...")
+#     utils.upload_directory(
+#         LOCAL_TRANSFORM_DIR, 
+#         os.path.join(etl_output_dir, 'transform_workflow')
+#     )
+#     try:
+#         tf_io.gfile.rmtree(LOCAL_TRANSFORM_DIR)
+#         tf_io.gfile.rmtree("categories")
+#     except: pass
+#     logging.info("Transformation uploaded to Cloud Storage.")
     
 
 
