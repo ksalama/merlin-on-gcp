@@ -47,22 +47,17 @@ def update_hyperparams(hyperparams: dict) -> dict:
     return hyperparams
 
 
+def train(train_data_file_pattern, nvt_workflow, hyperparams, log_dir=None):
 
-def train(
-    train_data_file_pattern,
-    nvt_workflow,
-    hyperparams,
-    log_dir=None):
-    
     hyperparams = update_hyperparams(hyperparams)
     logging.info("Hyperparameter:")
     logging.info(hyperparams)
     logging.info("")
-    
+
     logging.info("Preparing train dataset loader...")
     train_dataset = KerasSequenceLoader(
         train_data_file_pattern,
-        batch_size=hyperparams['batch_size'],
+        batch_size=hyperparams["batch_size"],
         label_names=features.TARGET_FEATURE_NAME,
         cat_names=features.get_categorical_feature_names(),
         cont_names=features.NUMERICAL_FEATURE_NAMES,
@@ -71,43 +66,41 @@ def train(
         buffer_size=0.06,  # how many batches to load at once
         parts_per_chunk=1,
     )
-    
-    embedding_shapes, embedding_shapes_multihot = nvt.ops.get_embedding_sizes(nvt_workflow)
+
+    embedding_shapes, embedding_shapes_multihot = nvt.ops.get_embedding_sizes(
+        nvt_workflow
+    )
     embedding_shapes.update(embedding_shapes_multihot)
     logging.info(f"Embedding shapes: {embedding_shapes}")
-    
-    hidden_units = hyperparams['hidden_units']
-    
+
+    hidden_units = hyperparams["hidden_units"]
+
     recommendation_model = model.create(embedding_shapes, hidden_units)
-    
+
     optimizer = keras.optimizers.Adam(learning_rate=hyperparams["learning_rate"])
     loss = keras.losses.BinaryCrossentropy(from_logits=True)
     metrics = [keras.metrics.MeanAbsoluteError(name="mae")]
-    
+
     logging.info("Compiling the model...")
     recommendation_model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
     logging.info("Model fitting started...")
     history = recommendation_model.fit(
         train_dataset,
-        epochs=hyperparams['num_epochs'],
-        #callbacks=[evaluation_callback], 
+        epochs=hyperparams["num_epochs"],
+        # callbacks=[evaluation_callback],
     )
     logging.info("Model fitting finished.")
-    
+
     return recommendation_model
 
 
+def evaluate(recommendation_model, eval_data_file_pattern, hyperparams):
 
-def evaluate(
-    recommendation_model,
-    eval_data_file_pattern,
-    hyperparams):
-    
     logging.info("Preparing evaluation dataset loader...")
     eval_dataset = KerasSequenceLoader(
         eval_data_file_pattern,
-        batch_size=hyperparams['batch_size'],
+        batch_size=hyperparams["batch_size"],
         label_names=features.TARGET_FEATURE_NAME,
         cat_names=features.get_categorical_feature_names(),
         cont_names=features.NUMERICAL_FEATURE_NAMES,
@@ -116,27 +109,24 @@ def evaluate(
         buffer_size=0.06,  # how many batches to load at once
         parts_per_chunk=1,
     )
-    
+
     logging.info("Evaluating the model...")
-    evaluation_metrics =  recommendation_model.evaluate(eval_dataset)
-    logging.info(f"Evaluation loss: {evaluation_metrics[0]} - Evaluation MAE {evaluation_metrics[1]}")
+    evaluation_metrics = recommendation_model.evaluate(eval_dataset)
+    logging.info(
+        f"Evaluation loss: {evaluation_metrics[0]} - Evaluation MAE {evaluation_metrics[1]}"
+    )
     return evaluation_metrics
 
 
-
 def export(recommendation_model, nvt_workflow, model_name, export_dir):
-    
+
     for feature_name in features.CATEGORICAL_FEATURE_NAMES:
         nvt_workflow.output_dtypes[feature_name] = "int32"
 
     export_tensorflow_ensemble(
-        recommendation_model, 
-        nvt_workflow, 
-        model_name, 
-        export_dir, features.TARGET_FEATURE_NAME
+        recommendation_model,
+        nvt_workflow,
+        model_name,
+        export_dir,
+        features.TARGET_FEATURE_NAME,
     )
-    
-
-
-
-

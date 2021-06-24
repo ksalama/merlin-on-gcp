@@ -28,7 +28,7 @@ from google.protobuf.internal import api_implementation
 from src.model_training import trainer
 from src.common import utils
 
-os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"]="python"
+os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
 
 
 def get_args():
@@ -48,16 +48,19 @@ def get_args():
 
     parser.add_argument(
         "--train-data-file-pattern",
+        required=True,
         type=str,
     )
 
     parser.add_argument(
         "--eval-data-file-pattern",
+        required=True,
         type=str,
     )
 
     parser.add_argument(
         "--nvt-workflow-dir",
+        required=True,
         type=str,
     )
 
@@ -69,14 +72,13 @@ def get_args():
 
     parser.add_argument("--num-epochs", default=1, type=int)
 
-    parser.add_argument("--project", type=str)
-    parser.add_argument("--region", type=str)
-    parser.add_argument("--staging-bucket", type=str)
-    parser.add_argument("--experiment-name", type=str)
-    parser.add_argument("--run-name", type=str)
+    #     parser.add_argument("--project", type=str)
+    #     parser.add_argument("--region", type=str)
+    #     parser.add_argument("--staging-bucket", type=str)
+    #     parser.add_argument("--experiment-name", type=str)
+    #     parser.add_argument("--run-name", type=str)
 
     return parser.parse_args()
-
 
 
 def main():
@@ -86,68 +88,61 @@ def main():
     experiment_params = trainer.update_hyperparams(experiment_params)
     logging.info(f"Parameter values: {experiment_params}")
 
-#     if args.experiment_name:
-#         vertex_ai.init(
-#             project=args.project,
-#             location=args.region,
-#             staging_bucket=args.staging_bucket,
-#             experiment=args.experiment_name,
-#         )
-#         logging.info(f"Using Vertex AI experiment: {args.experiment_name}")
+    #     if args.experiment_name:
+    #         vertex_ai.init(
+    #             project=args.project,
+    #             location=args.region,
+    #             staging_bucket=args.staging_bucket,
+    #             experiment=args.experiment_name,
+    #         )
+    #         logging.info(f"Using Vertex AI experiment: {args.experiment_name}")
 
-#         run_id = args.run_name
-#         if not run_id:
-#             run_id = f"run-gcp-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    #         run_id = args.run_name
+    #         if not run_id:
+    #             run_id = f"run-gcp-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
-#         vertex_ai.start_run(run_id)
-#         logging.info(f"Run {run_id} started.")
+    #         vertex_ai.start_run(run_id)
+    #         logging.info(f"Run {run_id} started.")
 
-#     if args.experiment_name:
-#         vertex_ai.log_params(experiment_params)
-        
-    
+    #     if args.experiment_name:
+    #         vertex_ai.log_params(experiment_params)
+
     logging.info("Downloading data and transform workflow...")
-    if tf.io.gfile.exists('data'):
-        tf.io.gfile.rmtree('data')
-    if tf.io.gfile.exists('transform_workflow'):
-        tf.io.gfile.rmtree('transform_workflow')
+    if tf.io.gfile.exists("data"):
+        tf.io.gfile.rmtree("data")
+    if tf.io.gfile.exists("transform_workflow"):
+        tf.io.gfile.rmtree("transform_workflow")
 
-    tf.io.gfile.mkdir('data')
-    tf.io.gfile.mkdir('data/train')
-    tf.io.gfile.mkdir('data/test')
+    tf.io.gfile.mkdir("data")
+    tf.io.gfile.mkdir("data/train")
+    tf.io.gfile.mkdir("data/test")
 
-    utils.copy_files(args.train_data_file_pattern, 'data/train')
-    utils.copy_files(args.test_data_file_pattern, 'data/test')
-    utils.download_directory(args.transform_workflow_dir, '.')
+    utils.copy_files(args.train_data_file_pattern, "data/train")
+    utils.copy_files(args.test_data_file_pattern, "data/test")
+    utils.download_directory(args.transform_workflow_dir, ".")
     logging.info("Data and workflow are downloaded.")
-    
-    
+
     logging.info(f"Loading nvt workflow...")
-    nvt_workflow = nvt.Workflow.load('transform_workflow')
+    nvt_workflow = nvt.Workflow.load("transform_workflow")
     logging.info(f"nvt workflow loaded.")
-    
+
     recommendation_model = trainer.train(
-        train_data_file_pattern='data/train/*.parquet',
+        train_data_file_pattern="data/train/*.parquet",
         nvt_workflow=nvt_workflow,
         hyperparams=experiment_params,
-        log_dir=args.log_dir
+        log_dir=args.log_dir,
     )
 
     val_loss, val_mae = trainer.evaluate(
         recommendation_model,
-        eval_data_file_pattern='data/test/*.parquet',
-        hyperparams=hyperparams
+        eval_data_file_pattern="data/test/*.parquet",
+        hyperparams=hyperparams,
     )
 
     if args.experiment_name:
         vertex_ai.log_metrics({"val_loss": val_loss, "val_accuracy": val_accuracy})
-        
-    trainer.export(
-        recommendation_model, 
-        nvt_workflow, 
-        model_name, 
-        args.model_dir
-    )
+
+    trainer.export(recommendation_model, nvt_workflow, model_name, args.model_dir)
 
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ import tensorflow.io as tf_io
 
 
 def upload_directory(source_dir, destination_dir):
-    
+
     stack = [source_dir]
     while stack:
         current = stack.pop()
@@ -26,27 +26,22 @@ def upload_directory(source_dir, destination_dir):
             for next_item in tf_io.gfile.listdir(current):
                 stack.append(os.path.join(current, next_item))
         else:
-            x = current.replace(source_dir + "/", '')
+            x = current.replace(source_dir + "/", "")
             dist = os.path.join(destination_dir, x)
-            tf_io.gfile.copy(
-                current, 
-                dist,
-                overwrite=True
-                
-            )
-            
-            
+            tf_io.gfile.copy(current, dist, overwrite=True)
+
+
 def download_directory(source_dir, destination_dir):
-    
+
     source_stack = [source_dir]
     destination_stack = [destination_dir]
-    
+
     while source_stack:
 
         source = source_stack.pop()
-        if source[-1] == '/':
+        if source[-1] == "/":
             source = source[:-1]
-        
+
         destination = destination_stack.pop()
         base_name = os.path.basename(source)
         destination = os.path.join(destination, base_name)
@@ -57,16 +52,13 @@ def download_directory(source_dir, destination_dir):
                 destination_stack.append(destination)
                 source_stack.append(os.path.join(source, next_item))
         else:
-            tf_io.gfile.copy(
-                source, 
-                destination,
-                overwrite=True
-            )
-            
-            
-            
+            tf_io.gfile.copy(source, destination, overwrite=True)
+
+
 def copy_files(file_pattern, destination_dir):
-        
+
     for file_path in tf_io.gfile.glob(file_pattern):
         file_name = os.path.basename(file_path)
-        tf_io.gfile.copy(file_path, os.path.join(destination_dir, file_name), overwrite=True)
+        tf_io.gfile.copy(
+            file_path, os.path.join(destination_dir, file_name), overwrite=True
+        )

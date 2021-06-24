@@ -16,32 +16,15 @@
 import numpy as np
 
 
-MOVIES_CSV_COLUMNS = [
-    "movieId",
-    "title",
-    "genres"
+MOVIES_CSV_COLUMNS = ["movieId", "title", "genres"]
 
-]
+RATINGS_CSV_COLUMNS = ["userId", "movieId", "rating", "timestamp"]
 
-RATINGS_CSV_COLUMNS = [
-    "userId",
-    "movieId",
-    "rating", 
-    "timestamp"
-]
+UNUSED_FEATURES = ["timestamp", "title"]
 
-UNUSED_FEATURES = [
-    "timestamp",
-    "title"
-]
+NUMERICAL_FEATURE_NAMES = []
 
-NUMERICAL_FEATURE_NAMES = [
-    
-]
-
-MULTIVALUE_FEATURE_NAMES = [
-    "genres"
-]
+MULTIVALUE_FEATURE_NAMES = ["genres"]
 
 CATEGORICAL_FEATURE_NAMES = ["userId", "movieId"]
 
@@ -53,12 +36,12 @@ def get_categorical_feature_names():
 
 
 def get_dtype_dict():
-    
+
     dtypes_dict = {}
 
     for feature_name in CATEGORICAL_FEATURE_NAMES:
         dtypes_dict[feature_name] = np.int64
 
     dtypes_dict[TARGET_FEATURE_NAME[0]] = np.float32
-    
+
     return dtypes_dict

@@ -22,40 +22,39 @@ from nvtabular.framework_utils.tensorflow import layers
 from src.common import features
 
 
-
 def create_inputs():
-    
+
     inputs = {}
     for feature_name in features.CATEGORICAL_FEATURE_NAMES:
-        inputs[feature_name] = tf.keras.Input(name=feature_name, dtype=tf.int32, shape=(1,))
+        inputs[feature_name] = tf.keras.Input(
+            name=feature_name, dtype=tf.int32, shape=(1,)
+        )
 
     for feature_name in features.MULTIVALUE_FEATURE_NAMES:
         inputs[feature_name] = (
             tf.keras.Input(name=f"{feature_name}__values", dtype=tf.int64, shape=(1,)),
-            tf.keras.Input(name=f"{feature_name}__nnzs", dtype=tf.int64, shape=(1,))
+            tf.keras.Input(name=f"{feature_name}__nnzs", dtype=tf.int64, shape=(1,)),
         )
     return inputs
 
 
-
 def create_embedding_layers(embedding_shapes):
-    
+
     embedding_layers = []
     for feature_name in features.get_categorical_feature_names():
         embedding_layers.append(
             tf.feature_column.embedding_column(
                 tf.feature_column.categorical_column_with_identity(
                     feature_name, embedding_shapes[feature_name][0]
-                ),   # Embedding input dimension
+                ),  # Embedding input dimension
                 embedding_shapes[feature_name][1],  # Embedding output dimension
             )
         )
     return embedding_layers
 
 
-
 def create(embedding_shapes, hidden_units):
-    
+
     inputs = create_inputs()
     embedding_layers = create_embedding_layers(embedding_shapes)
 
@@ -65,5 +64,5 @@ def create(embedding_shapes, hidden_units):
 
     logits = tf.keras.layers.Dense(1, activation="sigmoid", name="logits")(x)
     model = tf.keras.Model(inputs=inputs, outputs=logits)
-    
+
     return model

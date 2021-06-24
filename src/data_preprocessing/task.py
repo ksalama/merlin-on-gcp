@@ -22,58 +22,62 @@ import tensorflow as tf
 from tensorflow.python.client import device_lib
 import argparse
 
-#from google.cloud import aiplatform as vertex_ai
+# from google.cloud import aiplatform as vertex_ai
 
 from src.data_preprocessing import etl
 from src.common import features, utils
 
-LOCAL_TRANSFORM_DIR = 'transform_workflow'
+LOCAL_TRANSFORM_DIR = "transform_workflow"
+
 
 def get_args():
     parser = argparse.ArgumentParser()
 
-#     parser.add_argument(
-#         "--movies-dataset-display-name",
-#         type=str,
-#     )
+    #     parser.add_argument(
+    #         "--movies-dataset-display-name",
+    #         type=str,
+    #     )
 
-#     parser.add_argument(
-#         "--ratings-dataset-display-name",
-#         type=str,
-#     )
+    #     parser.add_argument(
+    #         "--ratings-dataset-display-name",
+    #         type=str,
+    #     )
 
     parser.add_argument(
         "--movies-csv-data-location",
+        required=True,
         type=str,
     )
-    
+
     parser.add_argument(
         "--ratings-csv-data-location",
+        required=True,
         type=str,
     )
 
     parser.add_argument(
         "--etl-output-dir",
+        required=True,
         type=str,
     )
 
     parser.add_argument(
-        "--test-size", 
-        default=0.2, type=float
+        "--test-size",
+        type=float,
+        default=0.2,
     )
 
-#     parser.add_argument(
-#         "--project", 
-#         type=str
-#     )
-    
-#     parser.add_argument(
-#         "--region", 
-#         type=str
-#     )
+    #     parser.add_argument(
+    #         "--project",
+    #         type=str
+    #     )
+
+    #     parser.add_argument(
+    #         "--region",
+    #         type=str
+    #     )
 
     return parser.parse_args()
-
 
 
 def get_dataset_gcs_location(dataset_display_name):
@@ -85,30 +89,36 @@ def get_dataset_gcs_location(dataset_display_name):
             break
 
     if not dataset:
-        raise ValueError(f"Dataset with display name {dataset_display_name} does not exist!")
-    
-    return dataset.gca_resource.metadata['inputConfig']['gcsSource']['uri'][0]
+        raise ValueError(
+            f"Dataset with display name {dataset_display_name} does not exist!"
+        )
 
+    return dataset.gca_resource.metadata["inputConfig"]["gcsSource"]["uri"][0]
 
 
 def main():
     args = get_args()
-    
-#     vertex_ai.init(
-#         project=args.project,
-#         location=args.region)
-    
-#     logging.info("Getting GCS data locations...")
-#     movies_csv_data_location = get_dataset_gcs_location(movies_dataset_display_name)
-#     ratings_csv_data_location = get_dataset_gcs_location(ratings_dataset_display_name)
 
-    transformed_train_dataset, transformed_test_dataset, transform_workflow = etl.run_etl(
-        args.movies_csv_data_location, 
-        args.ratings_csv_data_location
+    #     vertex_ai.init(
+    #         project=args.project,
+    #         location=args.region)
+
+    #     logging.info("Getting GCS data locations...")
+    #     movies_csv_data_location = get_dataset_gcs_location(movies_dataset_display_name)
+    #     ratings_csv_data_location = get_dataset_gcs_location(ratings_dataset_display_name)
+
+    (
+        transformed_train_dataset,
+        transformed_test_dataset,
+        transform_workflow,
+    ) = etl.run_etl(args.movies_csv_data_location, args.ratings_csv_data_location)
+
+    transformed_train_dataset_dir = os.path.join(
+        args.etl_output_dir, "transformed_data/train"
     )
-    
-    transformed_train_dataset_dir = os.path.join(args.etl_output_dir, "transformed_data/train")
-    logging.info(f"Writting transformed training data to {transformed_train_dataset_dir}")
+    logging.info(
+        f"Writting transformed training data to {transformed_train_dataset_dir}"
+    )
     transformed_train_dataset.to_parquet(
         output_path=transformed_train_dataset_dir,
         shuffle=nvt.io.Shuffle.PER_PARTITION,
@@ -117,9 +127,13 @@ def main():
         dtypes=features.get_dtype_dict(),
     )
     logging.info("Train data parquet files are written.")
-    
-    transformed_test_dataset_dir = os.path.join(args.etl_output_dir, "transformed_data/test")
-    logging.info(f"Writting transformed training data to {transformed_test_dataset_dir}")
+
+    transformed_test_dataset_dir = os.path.join(
+        args.etl_output_dir, "transformed_data/test"
+    )
+    logging.info(
+        f"Writting transformed training data to {transformed_test_dataset_dir}"
+    )
     transformed_test_dataset.to_parquet(
         output_path=transformed_test_dataset_dir,
         shuffle=False,
@@ -128,20 +142,20 @@ def main():
         dtypes=features.get_dtype_dict(),
     )
     logging.info("Test data parquet files are written.")
-    
+
     logging.info("Saving transformation workflow...")
     transform_workflow.save(LOCAL_TRANSFORM_DIR)
     logging.info("Transformation workflow is saved.")
-    
+
     logging.info("Uploading trandorm workflow to Cloud Storage...")
     utils.upload_directory(
-        LOCAL_TRANSFORM_DIR, 
-        os.path.join(args.etl_output_dir, 'transform_workflow')
+        LOCAL_TRANSFORM_DIR, os.path.join(args.etl_output_dir, "transform_workflow")
     )
     try:
         tf.io.gfile.rmtree(LOCAL_TRANSFORM_DIR)
         tf.io.gfile.rmtree("categories")
-    except: pass
+    except:
+        pass
     logging.info("Transformation uploaded to Cloud Storage.")
 
 
