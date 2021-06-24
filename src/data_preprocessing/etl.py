@@ -76,58 +76,20 @@ def run_etl(
     logging.info("NVTabular datasets loaded.")
     
     logging.info("Creating transformation workflow...")
-    workflow = create_workflow(movies_dataframe)
+    transform_workflow = create_workflow(movies_dataframe)
     logging.info("Fitting workflow to train data split...")
-    workflow.fit(train_dataset)
+    transform_workflow.fit(train_dataset)
     logging.info("Transformation workflow is fitted.")
-    
-#     logging.info("Transforming train dataset...")
-#     workflow.transform(train_dataset).to_parquet(
-#         output_path=os.path.join(etl_output_dir, "transformed_data/train"),
-#         shuffle=nvt.io.Shuffle.PER_PARTITION,
-#         cats=features.CATEGORICAL_FEATURE_NAMES,
-#         labels=features.TARGET_FEATURE_NAME,
-#         dtypes=features.get_dtype_dict(),
-#     )
-#     logging.info("Train data is transformed.")
-    
-#     logging.info(f"Transforming test dataset...")
-#     workflow.transform(test_dataset).to_parquet(
-#         output_path=os.path.join(etl_output_dir, "transformed_data/test"),
-#         shuffle=False,
-#         cats=features.CATEGORICAL_FEATURE_NAMES,
-#         labels=features.TARGET_FEATURE_NAME,
-#         dtypes=features.get_dtype_dict(),
-#     )
-#     logging.info("Test dataset is transformed.")
 
     logging.info("Transforming train dataset...")
-    transformed_train_dataset = workflow.transform(train_dataset)
+    transformed_train_dataset = transform_workflow.transform(train_dataset)
     logging.info("Train data is transformed.")
     
     logging.info(f"Transforming test dataset...")
-    transformed_test_dataset = workflow.transform(test_dataset)
+    transformed_test_dataset = transform_workflow.transform(test_dataset)
     logging.info("Test dataset is transformed.")
     
-    return transformed_train_dataset, transformed_test_dataset, workflow
-    
-#     logging.info("Saving transformation workflow...")
-#     workflow.save(LOCAL_TRANSFORM_DIR)
-#     logging.info("Transformation workflow is saved.")
-    
-#     logging.info("Uploading trandorm workflow to Cloud Storage...")
-#     utils.upload_directory(
-#         LOCAL_TRANSFORM_DIR, 
-#         os.path.join(etl_output_dir, 'transform_workflow')
-#     )
-#     try:
-#         tf_io.gfile.rmtree(LOCAL_TRANSFORM_DIR)
-#         tf_io.gfile.rmtree("categories")
-#     except: pass
-#     logging.info("Transformation uploaded to Cloud Storage.")
-    
-
-
+    return transformed_train_dataset, transformed_test_dataset, transform_workflow
     
 
     

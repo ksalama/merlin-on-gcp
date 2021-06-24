@@ -106,10 +106,9 @@ def main():
 #     movies_csv_data_location = get_dataset_gcs_location(movies_dataset_display_name)
 #     ratings_csv_data_location = get_dataset_gcs_location(ratings_dataset_display_name)
 
-    transformed_train_dataset, transformed_test_dataset, workflow = etl.run_etl(
+    transformed_train_dataset, transformed_test_dataset, transform_workflow = etl.run_etl(
         args.movies_csv_data_location, 
-        args.ratings_csv_data_location, 
-        args.etl_output_dir
+        args.ratings_csv_data_location
     )
     
     transformed_train_dataset_dir = os.path.join(arg.etl_output_dir, "transformed_data/train")
@@ -135,13 +134,13 @@ def main():
     logging.info("Test data parquet files are written.")
     
     logging.info("Saving transformation workflow...")
-    workflow.save(LOCAL_TRANSFORM_DIR)
+    transform_workflow.save(LOCAL_TRANSFORM_DIR)
     logging.info("Transformation workflow is saved.")
     
     logging.info("Uploading trandorm workflow to Cloud Storage...")
     utils.upload_directory(
         LOCAL_TRANSFORM_DIR, 
-        os.path.join(etl_output_dir, 'transform_workflow')
+        os.path.join(args.etl_output_dir, 'transform_workflow')
     )
     try:
         tf_io.gfile.rmtree(LOCAL_TRANSFORM_DIR)
