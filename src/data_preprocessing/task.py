@@ -17,6 +17,7 @@ import os
 import sys
 from datetime import datetime
 import logging
+import nvtabular as nvt
 import tensorflow as tf
 from tensorflow.python.client import device_lib
 import argparse
@@ -52,11 +53,6 @@ def get_args():
     )
 
     parser.add_argument(
-        "--ratings-dataset-display-name",
-        type=str,
-    )
-
-    parser.add_argument(
         "--etl-output-dir",
         type=str,
     )
@@ -66,15 +62,15 @@ def get_args():
         default=0.2, type=float
     )
 
-    parser.add_argument(
-        "--project", 
-        type=str
-    )
+#     parser.add_argument(
+#         "--project", 
+#         type=str
+#     )
     
-    parser.add_argument(
-        "--region", 
-        type=str
-    )
+#     parser.add_argument(
+#         "--region", 
+#         type=str
+#     )
 
     return parser.parse_args()
 
@@ -99,8 +95,8 @@ def main():
     args = get_args()
     
 #     vertex_ai.init(
-#         project=arg.project,
-#         location=arg.region)
+#         project=args.project,
+#         location=args.region)
     
 #     logging.info("Getting GCS data locations...")
 #     movies_csv_data_location = get_dataset_gcs_location(movies_dataset_display_name)
@@ -111,7 +107,7 @@ def main():
         args.ratings_csv_data_location
     )
     
-    transformed_train_dataset_dir = os.path.join(arg.etl_output_dir, "transformed_data/train")
+    transformed_train_dataset_dir = os.path.join(args.etl_output_dir, "transformed_data/train")
     logging.info(f"Writting transformed training data to {transformed_train_dataset_dir}")
     transformed_train_dataset.to_parquet(
         output_path=transformed_train_dataset_dir,
@@ -122,7 +118,7 @@ def main():
     )
     logging.info("Train data parquet files are written.")
     
-    transformed_test_dataset_dir = os.path.join(arg.etl_output_dir, "transformed_data/test")
+    transformed_test_dataset_dir = os.path.join(args.etl_output_dir, "transformed_data/test")
     logging.info(f"Writting transformed training data to {transformed_test_dataset_dir}")
     transformed_test_dataset.to_parquet(
         output_path=transformed_test_dataset_dir,
@@ -143,8 +139,8 @@ def main():
         os.path.join(args.etl_output_dir, 'transform_workflow')
     )
     try:
-        tf_io.gfile.rmtree(LOCAL_TRANSFORM_DIR)
-        tf_io.gfile.rmtree("categories")
+        tf.io.gfile.rmtree(LOCAL_TRANSFORM_DIR)
+        tf.io.gfile.rmtree("categories")
     except: pass
     logging.info("Transformation uploaded to Cloud Storage.")
 
