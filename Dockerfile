@@ -23,6 +23,3 @@ COPY src/ src/
 RUN chmod +x entrypoint.sh
 
 ENTRYPOINT ["./entrypoint.sh"]
-
-# ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-# ENV TF_MEMORY_ALLOCATION=0.7
