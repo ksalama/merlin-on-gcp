@@ -147,7 +147,7 @@ def main():
     transform_workflow.save(LOCAL_TRANSFORM_DIR)
     logging.info("Transformation workflow is saved.")
 
-    logging.info("Uploading trandorm workflow to Cloud Storage...")
+    logging.info("Uploading transform workflow to Cloud Storage...")
     utils.upload_directory(
         LOCAL_TRANSFORM_DIR, os.path.join(args.etl_output_dir, "transform_workflow")
     )
