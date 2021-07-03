@@ -7,8 +7,10 @@ pip install -e NVTabular/.
 pip install nvidia-pyindex
 pip install tritonclient
 
+echo "This is entrypoint!"
 echo "Current conda environment:" $CONDA_DEFAULT_ENV
 
-exec "$@"
+export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+export TF_MEMORY_ALLOCATION=0.7
 
-# python -m src.data_preprocessing.task "$@"
+exec "$@"
