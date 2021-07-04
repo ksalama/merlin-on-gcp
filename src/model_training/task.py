@@ -15,6 +15,10 @@
 
 
 import os
+
+os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"]='python'
+os.environ["TF_MEMORY_ALLOCATION"]='0.7'
+
 import sys
 from datetime import datetime
 import logging
@@ -22,14 +26,13 @@ import tensorflow as tf
 from tensorflow.python.client import device_lib
 import argparse
 
+import nvtabular as nvt
+
 # from google.cloud import aiplatform as vertex_ai
 from google.protobuf.internal import api_implementation
 
 from src.model_training import trainer
 from src.common import utils
-
-os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
-
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -53,13 +56,13 @@ def get_args():
     )
 
     parser.add_argument(
-        "--eval-data-file-pattern",
+        "--test-data-file-pattern",
         required=True,
         type=str,
     )
 
     parser.add_argument(
-        "--nvt-workflow-dir",
+        "--transform_workflow_dir",
         required=True,
         type=str,
     )
