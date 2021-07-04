@@ -45,7 +45,7 @@ def get_data_op(
         return dataset.gca_resource.metadata['inputConfig']['gcsSource']['uri'][0]
     
     dataset.metadata['movies_csv_data_location'] = _get_dataset_gcs_location(movies_dataset_display_name)
-    dataset.metadata['ratings'] = _get_dataset_gcs_location(ratings_dataset_display_name)
+    dataset.metadata['ratings_csv_data_location'] = _get_dataset_gcs_location(ratings_dataset_display_name)
     
     
 
@@ -72,7 +72,7 @@ def data_etl_op(
     vertex_ai.init(project=project, location=region)
     
     movies_csv_dataset_location = dataset.metadata['movies_csv_data_location']
-    ratings_csv_dataset_location = dataset.metadata['movies_csv_data_location']
+    ratings_csv_dataset_location = dataset.metadata['ratings_csv_data_location']
     etl_output_dir = etl_output.path.replace("/gcs/", "gs://")
     
     worker_pool_specs =  [
@@ -152,7 +152,7 @@ def train_op(
                 "args": [
                     "python",
                     "-m",
-                    "src.data_preprocessing.task",
+                    "src.model_training.task",
                     f'--model-dir={model_dir}',
                     f'--train-data-file-pattern={transformed_train_data}',
                     f'--eval-data-file-pattern={transformed_eval_data}',
@@ -178,6 +178,35 @@ def train_op(
         service_account=service_account,
         tensorboard=tensorboard_name
     )
+    
+    
+@dsl.component(
+    base_image='gcr.io/deeplearning-platform-release/base-cpu',
+    packages_to_install=['google-cloud-aiplatform']
+)
+def upload_model_op(
+    project: str,
+    region: str,
+    model_display_name: str,
+    serving_container_image_uri: str,
+    model: Input[Model],
+    uploaded_model: Output[Artifact]
+):
+    
+    import os
+    from google.cloud import aiplatform as vertex_ai
+
+    vertex_ai.init(project=project, location=region)
+    
+    artifact_uri = model.path.replace("/gcs/", "gs://")
+    
+    vertex_model = vertex_ai.Model.upload(
+        display_name=model_display_name,
+        artifact_uri=artifact_uri,
+        serving_container_image_uri=serving_container_image_uri
+    )
+    
+    uploaded_model.metadata["model_gca_resource"] = vertex_model.gca_resource
     
     
     

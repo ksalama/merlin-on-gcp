@@ -27,15 +27,15 @@ MODEL_REGISTRY_URI = os.getenv(
 )
 
 MOVIES_DATASET_DISPLAY_NAME = os.getenv("MOVIES_DATASET_DISPLAY_NAME", 'movielens25m-movies')
-RATINGS_DATASET_DISPLAY_NAME = os.getenv("MOVIES_DATASET_DISPLAY_NAME", 'movielens25m-ratings')
+RATINGS_DATASET_DISPLAY_NAME = os.getenv("RATINGS_DATASET_DISPLAY_NAME", 'movielens25m-ratings')
 
 MODEL_DISPLAY_NAME = os.getenv(
     "MODEL_DISPLAY_NAME", "movielens25m-recommender"
 )
 PIPELINE_NAME = os.getenv("PIPELINE_NAME", f"{MODEL_DISPLAY_NAME}-train-pipeline")
 
-IMAGE_URI = os.getenv(
-    "TFX_IMAGE_URI", f"gcr.io/{PROJECT}/movielens-cuda11.0-tf2.4:latest"
+NVT_IMAGE_URI = os.getenv(
+    "NVT_IMAGE_URI", f"gcr.io/{PROJECT}/movielens-cuda11.0-tf2.4:latest"
 )
 
 VERTEX_SERVICE_ACCOUNT = os.getenv(
@@ -43,7 +43,6 @@ VERTEX_SERVICE_ACCOUNT = os.getenv(
     f'vertex-sa-mlops@{PROJECT}.iam.gserviceaccount.com')
 PIPELINES_SA = os.getenv("PIPELINES_SA", f'vertex-sa-mlops@{PROJECT}.iam.gserviceaccount.com')
 ENABLE_CACHING = os.getenv("ENABLE_CACHING", "1")
-
 
 VERTEX_TRAINING_MACHINE_SPEC = { 
     "machine_type": "n1-standard-4",
@@ -56,8 +55,13 @@ TENSORBOARD_RESOURCE_NAME = os.getenv(
     "projects/659831510405/locations/us-central1/tensorboards/4450717516120981504"
 )
 
+SERVING_IMAGE_URI = os.getenv(
+    "SERVING_IMAGE_URI",
+    f"gcr.io/{PROJECT}/triton-{MODEL_DISPLAY_NAME}:latest"
+)
+
 
 os.environ["PROJECT"] = PROJECT
 os.environ["PIPELINE_NAME"] = PIPELINE_NAME
-os.environ["IMAGE_URI"] = IMAGE_URI
+os.environ["NVT_IMAGE_URI"] = NVT_IMAGE_URI
 os.environ["MODEL_REGISTRY_URI"] = MODEL_REGISTRY_URI

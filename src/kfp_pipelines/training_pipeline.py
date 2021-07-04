@@ -58,3 +58,11 @@ def movielens_training(
         learning_rate=learning_rate,
         etl_output=prep_data.outputs['etl_output']
     )
+    
+    upload_model = components.upload_model_op(
+        project=config.PROJECT,
+        region=config.REGION,
+        model_display_name=config.MODEL_DISPLAY_NAME,
+        serving_container_image_uri=config.SERVING_IMAGE_URI,
+        model=train_model.outputs['model']
+    )
