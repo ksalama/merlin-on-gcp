@@ -26,7 +26,7 @@ from src.model_training import model
 
 HIDDEN_UNITS = [128, 128]
 LEARNING_RATE = 0.001
-BATCH_SIZE = 512
+BATCH_SIZE = 1024 * 32
 NUM_EPOCHS = 1
 
 
