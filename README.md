@@ -24,6 +24,7 @@ An example of running NVidia Merlin on Google Cloud
     ```
     git clone https://github.com/ksalama/merlin-on-gcp.git
     cd merlin-on-gcp
+    pip install -r requirements.txt
     ```
 6. Build the Docker container image used in Vertex AI
     ```
