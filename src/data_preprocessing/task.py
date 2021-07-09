@@ -132,7 +132,7 @@ def main():
         args.etl_output_dir, "transformed_data/test"
     )
     logging.info(
-        f"Writting transformed training data to {transformed_test_dataset_dir}"
+        f"Writting transformed testing data to {transformed_test_dataset_dir}"
     )
     transformed_test_dataset.to_parquet(
         output_path=transformed_test_dataset_dir,
