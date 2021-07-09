@@ -1,2 +1,2 @@
 kfp
-googlec-cloud-aiplatform
+google-cloud-aiplatform
