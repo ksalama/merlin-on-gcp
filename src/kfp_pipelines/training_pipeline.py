@@ -41,7 +41,7 @@ def movielens_training(
         service_account=config.VERTEX_SERVICE_ACCOUNT,
         tensorboard_name=config.TENSORBOARD_RESOURCE_NAME,
         vertex_training_machine_spec=json.dumps(config.VERTEX_TRAINING_MACHINE_SPEC),
-        image_uri=config.IMAGE_URI,
+        image_uri=config.NVT_IMAGE_URI,
         dataset=get_data.outputs['dataset']
     )
     
@@ -52,7 +52,7 @@ def movielens_training(
         service_account=config.VERTEX_SERVICE_ACCOUNT,
         tensorboard_name=config.TENSORBOARD_RESOURCE_NAME,
         vertex_training_machine_spec=json.dumps(config.VERTEX_TRAINING_MACHINE_SPEC),
-        image_uri=config.IMAGE_URI,
+        image_uri=config.NVT_IMAGE_URI,
         num_epochs=num_epochs,
         batch_size=batch_size, 
         learning_rate=learning_rate,

@@ -44,10 +44,14 @@ VERTEX_SERVICE_ACCOUNT = os.getenv(
 PIPELINES_SA = os.getenv("PIPELINES_SA", f'vertex-sa-mlops@{PROJECT}.iam.gserviceaccount.com')
 ENABLE_CACHING = os.getenv("ENABLE_CACHING", "1")
 
+MACHINE_TYPE = os.getenv("MACHINE_TYPE", "n1-standard-4")
+ACCELERATOR_TYPE = os.getenv("ACCELERATOR_TYPE", "NVIDIA_TESLA_T4")
+ACCELERATOR_COUNT = os.getenv("ACCELERATOR_COUNT", "1")
+
 VERTEX_TRAINING_MACHINE_SPEC = { 
-    "machine_type": "n1-standard-4",
-    "accelerator_type": "NVIDIA_TESLA_V100",
-    "accelerator_count": 1,
+    "machine_type": MACHINE_TYPE,
+    "accelerator_type": ACCELERATOR_TYPE,
+    "accelerator_count": int(ACCELERATOR_COUNT),
 }
 
 TENSORBOARD_RESOURCE_NAME = os.getenv(
