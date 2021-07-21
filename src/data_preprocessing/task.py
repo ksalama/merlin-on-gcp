@@ -164,7 +164,7 @@ if __name__ == "__main__":
     logging.info(f"Python Version = {sys.version}")
     logging.info(f"TensorFlow Version = {tf.__version__}")
     logging.info(f'TF_CONFIG = {os.environ.get("TF_CONFIG", "Not found")}')
-    logging.info(f"DEVICES = {device_lib.list_local_devices()}")
+    logging.info(f"DEVICES = {tf.config.list_physical_devices()}")
     logging.info(f"Task started...")
     main()
     logging.info(f"Task completed.")
