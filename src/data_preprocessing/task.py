@@ -19,7 +19,6 @@ from datetime import datetime
 import logging
 import nvtabular as nvt
 import tensorflow as tf
-from tensorflow.python.client import device_lib
 import argparse
 
 # from google.cloud import aiplatform as vertex_ai
