@@ -23,7 +23,6 @@ import sys
 from datetime import datetime
 import logging
 import tensorflow as tf
-from tensorflow.python.client import device_lib
 import argparse
 
 import nvtabular as nvt
